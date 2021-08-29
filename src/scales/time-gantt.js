@@ -1,26 +1,28 @@
 'use strict';
 
 import {ScaleUtils} from "./scale-utils";
+import {TimeScale} from "chart.js";
+
+class TimeGanttScaleZ extends TimeScale {
+    static get isTime() { return true; }
+    static get id() { return 'time-gantt'; }
+
+    getRightValue(rawValue) {
+        return ScaleUtils.getRightValue(this, rawValue);
+    }
+
+    determineDataLimits() {
+        this.__proto__.__proto__.determineDataLimits.call(this);
+        ScaleUtils.determineDataLimits(this);
+    }
+
+    getLabelForValue(value) {
+        console.log("val", value);
+
+        return value;
+    }
+}
 
 export function TimeGanttScale(Chart) {
-
-    const scale = Object.assign({}, Chart.registry.getScale('time'), {
-        isTime: true,
-        id: 'time-gantt',
-
-        getRightValue: function (rawValue) {
-            return ScaleUtils.getRightValue(this, rawValue);
-        },
-
-        determineDataLimits: function () {
-            this.__proto__.__proto__.determineDataLimits.call(this);
-            ScaleUtils.determineDataLimits(this);
-        },
-
-        getLabelForIndex: function (index, datasetIndex) {
-            return ScaleUtils.getLabelForIndex(this, index, datasetIndex);
-        }
-    });
-
-    Chart.register(scale);
+    Chart.register(TimeGanttScaleZ);
 }

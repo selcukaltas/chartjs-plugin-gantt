@@ -103,7 +103,7 @@ Chart.defaults.gantt = GanttControllerZ.overrides = {
         _index_: {
             id: 'x',
             active: true,
-            type: 'linear-gantt',
+            type: 'time-gantt',
             position: 'bottom'
         },
         _value_: {

@@ -1,7 +1,7 @@
 'use strict';
 
 import {ScaleUtils} from "./scale-utils";
-import {LinearScale, Ticks} from "chart.js";
+import {LinearScale} from "chart.js";
 
 class LinearGanttScaleZ extends LinearScale {
     static get id() { return 'linear-gantt'; }

@@ -19,13 +19,13 @@
                     datasets: [{
                         label: "Gantt series",
                         data: [
-                            {x: {from: 0, to: 8}, y: 0},
-                            {x: {from: 10, to: 18}, y: 5},
-                            {x: {from: 25, to: 28}, y: 10},
+                            {x: {from: new Date(), to: new Date(Date.now() + 10000)}, y: 0},
+                            {x: {from: new Date(Date.now() + 10000), to: new Date(Date.now() + 20000)}, y: 5},
+                            {x: {from: new Date(Date.now() + 20000), to: new Date(Date.now() + 34000)}, y: 10},
                         ],
                         height: 15
                     }]
-                },
+                }
             });
         </script>
     </body>
