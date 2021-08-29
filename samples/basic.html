@@ -9,7 +9,8 @@
         <div class="chart-container">
             <canvas id="chart"></canvas>
         </div>
-        <script type="text/javascript" src="https://unpkg.com/chart.js@2.8.0/dist/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/chart.js@3.5.1/dist/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
         <script type="text/javascript" src="../dist/chartjs-plugin-gantt.js"></script>
         <script type="text/javascript">
             const chart = new Chart("chart", {
@@ -20,8 +21,9 @@
                         data: [
                             {x: {from: 0, to: 8}, y: 0},
                             {x: {from: 10, to: 18}, y: 5},
-                            {x: {from: 20, to: 28}, y: 10},
-                        ]
+                            {x: {from: 25, to: 28}, y: 10},
+                        ],
+                        height: 15
                     }]
                 },
             });

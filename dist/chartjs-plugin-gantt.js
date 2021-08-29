@@ -9,6 +9,7 @@
  */
 
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function (global){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20,110 +21,120 @@ var _rect = require("../elements/rect");
 
 var _utils = require("../core/utils");
 
-const defaults = Chart.defaults;
-defaults.gantt = {
+var _chart = (typeof window !== "undefined" ? window['Chart'] : typeof global !== "undefined" ? global['Chart'] : null);
+
+const defaults = _chart.Chart.defaults;
+defaults.elements.gantt = {
+  borderWidth: 1,
+  borderColor: defaults.defaultColor,
+  backgroundColor: defaults.defaultColor
+};
+
+class GanttControllerZ extends _chart.Chart.DatasetController {
+  static get id() {
+    return "gantt";
+  }
+
+  _prepareData(data, dataset) {
+    return {
+      x: _utils.Utils.extendValue(data.x, dataset._width),
+      y: _utils.Utils.extendValue(data.y, dataset._height)
+    };
+  }
+
+  _calcBounds(scale, scaleValue) {
+    const from = scale.getPixelForValue(scaleValue.from);
+    const to = scale.getPixelForValue(scaleValue.to);
+    const res = {
+      from: from,
+      to: to
+    };
+
+    _utils.Utils.normalize(res);
+
+    res.size = res.to - res.from;
+    return res;
+  }
+
+  update(reset) {
+    const meta = this.getMeta();
+    const dataset = this.getDataset();
+    const xScale = this.getScaleForId(meta.xAxisID);
+    const yScale = this.getScaleForId(meta.yAxisID);
+    dataset._width = _utils.Utils.convertSize(xScale, _chart.Chart.helpers.valueOrDefault(dataset.width, defaults.gantt.width));
+    dataset._height = _utils.Utils.convertSize(yScale, _chart.Chart.helpers.valueOrDefault(dataset.height, defaults.gantt.height));
+    const globalOptionGantt = defaults.elements.gantt;
+    const data = meta.data || [];
+
+    for (let i = 0; i < data.length; i++) this.updateElement(data[i], i, reset);
+  }
+
+  updateElements(points, start, count, mode) {
+    for (let i = start; i < count; i++) {
+      this.updateElement(points[i], i, mode === 'reset');
+    }
+  }
+
+  updateElement(point, index, reset) {
+    const meta = this.getMeta();
+    const dataset = this.getDataset();
+    const datasetIndex = this.index;
+    const xScale = this.getScaleForId(meta.xAxisID);
+    const yScale = this.getScaleForId(meta.yAxisID);
+    const value = dataset.data[index]; // Utility
+
+    point._xScale = xScale;
+    point._yScale = yScale;
+    point._datasetIndex = datasetIndex;
+    point._index = index;
+
+    const fullPoint = this._prepareData(value, dataset);
+
+    Object.assign(point, {
+      rect: {
+        x: this._calcBounds(xScale, fullPoint.x),
+        y: this._calcBounds(yScale, fullPoint.y)
+      },
+      borderWidth: value.borderWidth || this.borderWidth,
+      borderColor: value.borderColor || this.borderColor,
+      backgroundColor: value.backgroundColor || this.backgroundColor
+    });
+    Object.assign(point, {
+      x: _utils.Utils.getMiddle(point.rect.x),
+      y: _utils.Utils.getMiddle(point.rect.y)
+    }); //point.pivot();
+  }
+
+}
+
+GanttControllerZ.defaults = {
+  dataElementType: "rect",
+  //    datasetElementType: "rect",
   height: 5,
-  width: 5,
+  width: 5
+};
+_chart.Chart.defaults.gantt = GanttControllerZ.overrides = {
   scales: {
-    xAxes: [{
-      id: 'x-axis-1',
+    _index_: {
+      id: 'x',
+      active: true,
       type: 'linear-gantt',
       position: 'bottom'
-    }],
-    yAxes: [{
-      id: 'y-axis-1',
+    },
+    _value_: {
+      id: 'y',
+      active: true,
       type: 'linear-gantt',
       position: 'left'
-    }]
-  },
-  tooltips: {
-    callbacks: {
-      title: function () {
-        return '';
-      },
-      label: function (item) {
-        return '(' + item.xLabel + ', ' + item.yLabel + ')';
-      }
     }
   }
 };
-defaults.global.elements.gantt = {
-  borderWidth: 1,
-  borderColor: defaults.global.defaultColor,
-  backgroundColor: defaults.global.defaultColor
-};
 
 function GanttController(Chart) {
-  Chart.controllers.gantt = Chart.DatasetController.extend({
-    dataElementType: _rect.Rect,
-    _prepareData: function (data, dataset) {
-      return {
-        x: _utils.Utils.extendValue(data.x, dataset._width),
-        y: _utils.Utils.extendValue(data.y, dataset._height)
-      };
-    },
-    _calcBounds: function (scale, scaleValue) {
-      const from = scale.getPixelForValue(scaleValue.from);
-      const to = scale.getPixelForValue(scaleValue.to);
-      const res = {
-        from: from,
-        to: to
-      };
-
-      _utils.Utils.normalize(res);
-
-      res.size = res.to - res.from;
-      return res;
-    },
-    update: function (reset) {
-      const meta = this.getMeta();
-      const dataset = this.getDataset();
-      const xScale = this.getScaleForId(meta.xAxisID);
-      const yScale = this.getScaleForId(meta.yAxisID);
-      dataset._width = _utils.Utils.convertSize(xScale, Chart.helpers.valueOrDefault(dataset.width, defaults.gantt.width));
-      dataset._height = _utils.Utils.convertSize(yScale, Chart.helpers.valueOrDefault(dataset.height, defaults.gantt.height));
-      const globalOptionGantt = defaults.global.elements.gantt;
-      dataset._view = {
-        borderWidth: dataset.borderWidth || globalOptionGantt.borderWidth,
-        borderColor: dataset.borderColor || globalOptionGantt.borderColor,
-        backgroundColor: dataset.backgroundColor || globalOptionGantt.backgroundColor
-      };
-      const data = meta.data || [];
-
-      for (let i = 0; i < data.length; i++) this.updateElement(data[i], i, reset);
-    },
-    updateElement: function (point, index, reset) {
-      const meta = this.getMeta();
-      const dataset = this.getDataset();
-      const datasetIndex = this.index;
-      const xScale = this.getScaleForId(meta.xAxisID);
-      const yScale = this.getScaleForId(meta.yAxisID);
-      const vm = dataset._view;
-      const value = dataset.data[index]; // Utility
-
-      point._xScale = xScale;
-      point._yScale = yScale;
-      point._datasetIndex = datasetIndex;
-      point._index = index;
-
-      const fullPoint = this._prepareData(value, dataset);
-
-      point._model = {
-        rect: {
-          x: this._calcBounds(xScale, fullPoint.x),
-          y: this._calcBounds(yScale, fullPoint.y)
-        },
-        borderWidth: value.borderWidth || vm.borderWidth,
-        borderColor: value.borderColor || vm.borderColor,
-        backgroundColor: value.backgroundColor || vm.backgroundColor
-      };
-      point._model.x = _utils.Utils.getMiddle(point._model.rect.x);
-      point._model.y = _utils.Utils.getMiddle(point._model.rect.y);
-      point.pivot();
-    }
-  });
+  Chart.register(GanttControllerZ);
 }
 
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../core/utils":2,"../elements/rect":3}],2:[function(require,module,exports){
 "use strict";
 
@@ -228,7 +239,7 @@ const Utils = {
 exports.Utils = Utils;
 
 },{}],3:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -240,41 +251,48 @@ var _chart = (typeof window !== "undefined" ? window['Chart'] : typeof global !=
 
 var _utils = require("../core/utils");
 
-const Rect = _chart.Chart.Element.extend({
-  inRange: function (mouseX, mouseY) {
-    const rect = this._view.rect;
+class Rect extends _chart.Element {
+  static get id() {
+    return "rect";
+  }
+
+  inRange(mouseX, mouseY) {
+    const rect = this.rect;
     return mouseX >= rect.x.from && mouseX <= rect.x.to && mouseY >= rect.y.from && mouseY <= rect.y.to;
-  },
-  getCenterPoint: function () {
-    const vm = this._view;
+  }
+
+  getCenterPoint() {
     return {
-      x: vm.x,
-      y: vm.y
+      x: this.x,
+      y: this.y
     };
-  },
-  getArea: function () {
-    const rect = this._view.rect;
+  }
+
+  getArea() {
+    const rect = this.rect;
     return rect.x.size * rect.y.size;
-  },
-  draw: function () {
-    const vm = this._view;
-    const ctx = this._chart.ctx;
+  }
+
+  draw(ctx) {
     ctx.save();
-    ctx.lineWidth = vm.borderWidth;
-    ctx.strokeStyle = vm.borderColor;
-    ctx.fillStyle = vm.backgroundColor;
-    const rect = vm.rect;
+    ctx.lineWidth = this.borderWidth;
+    ctx.strokeStyle = this.borderColor;
+    ctx.fillStyle = this.backgroundColor;
+    const rect = this.rect;
     ctx.fillRect(rect.x.from, rect.y.from, rect.x.size, rect.y.size);
     ctx.strokeRect(rect.x.from, rect.y.from, rect.x.size, rect.y.size);
     ctx.restore();
   }
-});
+
+}
 
 exports.Rect = Rect;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+_chart.Chart.register(Rect);
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../core/utils":2}],4:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 "use strict";
 
 var _chart = (typeof window !== "undefined" ? window['Chart'] : typeof global !== "undefined" ? global['Chart'] : null);
@@ -289,8 +307,9 @@ var _timeGantt = require("./scales/time-gantt");
 (0, _linearGantt.LinearGanttScale)(_chart.Chart);
 (0, _timeGantt.TimeGanttScale)(_chart.Chart);
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./controllers/gantt":1,"./scales/linear-gantt":5,"./scales/time-gantt":7}],5:[function(require,module,exports){
+(function (global){(function (){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -300,24 +319,41 @@ exports.LinearGanttScale = LinearGanttScale;
 
 var _scaleUtils = require("./scale-utils");
 
-function LinearGanttScale(Chart) {
-  const scale = Chart.scaleService.getScaleConstructor('linear').extend({
-    getRightValue: function (rawValue) {
-      return _scaleUtils.ScaleUtils.getRightValue(this, rawValue);
-    },
-    determineDataLimits: function () {
-      _scaleUtils.ScaleUtils.determineDataLimits(this);
+var _chart = (typeof window !== "undefined" ? window['Chart'] : typeof global !== "undefined" ? global['Chart'] : null);
 
-      this.handleTickRangeOptions();
-    },
-    getLabelForIndex: function (index, datasetIndex) {
-      return _scaleUtils.ScaleUtils.getLabelForIndex(this, index, datasetIndex);
-    }
-  });
+class LinearGanttScaleZ extends _chart.LinearScale {
+  static get id() {
+    return 'linear-gantt';
+  }
 
-  _scaleUtils.ScaleUtils.extendScale(Chart, 'linear', 'linear-gantt', scale);
+  getRightValue(rawValue) {
+    return _scaleUtils.ScaleUtils.getRightValue(this, rawValue);
+  }
+
+  determineDataLimits() {
+    _scaleUtils.ScaleUtils.determineDataLimits(this);
+
+    this.handleTickRangeOptions();
+  }
+
+  getLabelForValue(value) {
+    console.log("val", value);
+    return value;
+  }
+
 }
 
+LinearGanttScaleZ.defaults = {
+  ticks: {
+    callback: value => value
+  }
+};
+
+function LinearGanttScale(Chart) {
+  Chart.register(LinearGanttScaleZ);
+}
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./scale-utils":6}],6:[function(require,module,exports){
 'use strict';
 
@@ -336,7 +372,7 @@ const ScaleUtils = {
   },
   determineDataLimits: function (scale) {
     const chart = scale.chart;
-    const defaults = Chart.defaults.gantt;
+    const defaults = Chart.defaults.gantt || {};
     const isHorizontal = scale.isHorizontal();
 
     function IDMatches(meta) {
@@ -372,11 +408,6 @@ const ScaleUtils = {
     const val = scale.isHorizontal() ? data.x : data.y;
     if (_utils.Utils.isRange(val)) return val.from + "~" + val.to;
     return val;
-  },
-  extendScale: function (Chart, base, newName, scaleClass) {
-    const service = Chart.scaleService;
-    const options = service.getScaleDefaults(base);
-    service.registerScaleType(newName, scaleClass, options);
   }
 };
 exports.ScaleUtils = ScaleUtils;
@@ -392,8 +423,9 @@ exports.TimeGanttScale = TimeGanttScale;
 var _scaleUtils = require("./scale-utils");
 
 function TimeGanttScale(Chart) {
-  const scale = Chart.scaleService.getScaleConstructor('time').extend({
+  const scale = Object.assign({}, Chart.registry.getScale('time'), {
     isTime: true,
+    id: 'time-gantt',
     getRightValue: function (rawValue) {
       return _scaleUtils.ScaleUtils.getRightValue(this, rawValue);
     },
@@ -406,8 +438,7 @@ function TimeGanttScale(Chart) {
       return _scaleUtils.ScaleUtils.getLabelForIndex(this, index, datasetIndex);
     }
   });
-
-  _scaleUtils.ScaleUtils.extendScale(Chart, 'time', 'time-gantt', scale);
+  Chart.register(scale);
 }
 
 },{"./scale-utils":6}]},{},[4]);

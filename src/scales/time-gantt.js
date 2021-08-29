@@ -4,8 +4,9 @@ import {ScaleUtils} from "./scale-utils";
 
 export function TimeGanttScale(Chart) {
 
-    const scale = Chart.scaleService.getScaleConstructor('time').extend({
+    const scale = Object.assign({}, Chart.registry.getScale('time'), {
         isTime: true,
+        id: 'time-gantt',
 
         getRightValue: function (rawValue) {
             return ScaleUtils.getRightValue(this, rawValue);
@@ -20,5 +21,6 @@ export function TimeGanttScale(Chart) {
             return ScaleUtils.getLabelForIndex(this, index, datasetIndex);
         }
     });
-    ScaleUtils.extendScale(Chart, 'time', 'time-gantt', scale);
+
+    Chart.register(scale);
 }

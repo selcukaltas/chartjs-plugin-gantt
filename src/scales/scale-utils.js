@@ -13,7 +13,7 @@ export const ScaleUtils = {
 
     determineDataLimits: function (scale) {
         const chart = scale.chart;
-        const defaults = Chart.defaults.gantt;
+        const defaults = Chart.defaults.gantt || {};
         const isHorizontal = scale.isHorizontal();
 
         function IDMatches(meta) {
@@ -58,12 +58,6 @@ export const ScaleUtils = {
         if (Utils.isRange(val))
             return val.from + "~" + val.to
         return val;
-    },
-
-    extendScale: function (Chart, base, newName, scaleClass) {
-        const service = Chart.scaleService;
-        const options = service.getScaleDefaults(base);
-        service.registerScaleType(newName, scaleClass, options);
     }
 };
 

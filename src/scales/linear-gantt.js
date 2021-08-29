@@ -1,22 +1,33 @@
 'use strict';
 
 import {ScaleUtils} from "./scale-utils";
+import {LinearScale, Ticks} from "chart.js";
+
+class LinearGanttScaleZ extends LinearScale {
+    static get id() { return 'linear-gantt'; }
+
+    getRightValue(rawValue) {
+        return ScaleUtils.getRightValue(this, rawValue);
+    }
+
+    determineDataLimits() {
+        ScaleUtils.determineDataLimits(this);
+        this.handleTickRangeOptions();
+    }
+
+    getLabelForValue(value) {
+        console.log("val", value);
+
+        return value;
+    }
+}
+
+LinearGanttScaleZ.defaults = {
+    ticks: {
+        callback: value => value
+    }
+};
 
 export function LinearGanttScale(Chart) {
-
-    const scale = Chart.scaleService.getScaleConstructor('linear').extend({
-        getRightValue: function (rawValue) {
-            return ScaleUtils.getRightValue(this, rawValue);
-        },
-
-        determineDataLimits: function () {
-            ScaleUtils.determineDataLimits(this);
-            this.handleTickRangeOptions();
-        },
-
-        getLabelForIndex: function (index, datasetIndex) {
-            return ScaleUtils.getLabelForIndex(this, index, datasetIndex);
-        }
-    });
-    ScaleUtils.extendScale(Chart, 'linear', 'linear-gantt', scale);
+    Chart.register(LinearGanttScaleZ);
 }

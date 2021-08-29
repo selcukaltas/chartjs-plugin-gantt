@@ -1,44 +1,44 @@
 "use strict";
 
-import {Chart} from "chart.js"
+import {Element, Chart} from "chart.js"
 import {Utils} from "../core/utils";
 
-export const Rect = Chart.Element.extend({
-    inRange: function(mouseX, mouseY) {
-        const rect = this._view.rect;
+export class Rect extends Element {
+    static get id() { return "rect"; }
+
+    inRange(mouseX, mouseY) {
+        const rect = this.rect;
         return (
             mouseX >= rect.x.from && mouseX <= rect.x.to &&
             mouseY >= rect.y.from && mouseY <= rect.y.to
         );
-    },
+    }
 
-    getCenterPoint: function() {
-        const vm = this._view;
+    getCenterPoint() {
         return {
-            x: vm.x,
-            y: vm.y,
+            x: this.x,
+            y: this.y,
         }
-    },
+    }
 
-    getArea: function() {
-        const rect = this._view.rect;
+    getArea() {
+        const rect = this.rect;
         return rect.x.size * rect.y.size;
-    },
+    }
 
-    draw: function () {
-        const vm = this._view;
-        const ctx = this._chart.ctx;
-
+    draw(ctx) {
         ctx.save();
 
-        ctx.lineWidth = vm.borderWidth;
-        ctx.strokeStyle = vm.borderColor;
-        ctx.fillStyle = vm.backgroundColor;
-        
-        const rect = vm.rect;
+        ctx.lineWidth = this.borderWidth;
+        ctx.strokeStyle = this.borderColor;
+        ctx.fillStyle = this.backgroundColor;
+
+        const rect = this.rect;
         ctx.fillRect(rect.x.from, rect.y.from, rect.x.size, rect.y.size);
         ctx.strokeRect(rect.x.from, rect.y.from, rect.x.size, rect.y.size);
 
         ctx.restore();
     }
-});
+}
+
+Chart.register(Rect);
