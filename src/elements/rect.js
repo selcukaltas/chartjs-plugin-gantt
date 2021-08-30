@@ -40,5 +40,3 @@ export class Rect extends Element {
         ctx.restore();
     }
 }
-
-Chart.register(Rect);

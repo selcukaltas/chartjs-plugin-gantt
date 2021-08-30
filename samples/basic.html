@@ -2,16 +2,20 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Basic fetures</title>
+        <title>Basic features</title>
         <link rel="stylesheet" type="text/css" href="main.css">
     </head>
     <body>
         <div class="chart-container">
             <canvas id="chart"></canvas>
         </div>
-        <script type="text/javascript" src="https://unpkg.com/chart.js@3.5.1/dist/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-        <script type="text/javascript" src="../dist/chartjs-plugin-gantt.js"></script>
+
+        <script src="lib/chart.js"></script>
+        <script src="lib/chartjs-adapter-date-fns.bundle.min.js"></script>
+        <script src="../dist/chartjs-plugin-gantt.js"></script>
+        <script src="lib/hammer.js"></script>
+        <script src="lib/chartjs-plugin-zoom.js"></script>
+
         <script type="text/javascript">
             const chart = new Chart("chart", {
                 type: "gantt",
@@ -19,12 +23,31 @@
                     datasets: [{
                         label: "Gantt series",
                         data: [
-                            {x: {from: new Date(), to: new Date(Date.now() + 10000)}, y: 0},
-                            {x: {from: new Date(Date.now() + 10000), to: new Date(Date.now() + 20000)}, y: 5},
-                            {x: {from: new Date(Date.now() + 20000), to: new Date(Date.now() + 34000)}, y: 10},
+                            {x: {from: new Date(), to: new Date(Date.now() + 1000000000)}, y: 0},
+                            {x: {from: new Date(Date.now() + 1000000000), to: new Date(Date.now() + 2000000000)}, y: 5},
+                            {x: {from: new Date(Date.now() + 2000000000), to: new Date(Date.now() + 3400000000)}, y: 10},
                         ],
-                        height: 15
+                        height: 3
                     }]
+                },
+                options: {
+                    plugins: {
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                            }
+                        }
+                    }
                 }
             });
         </script>

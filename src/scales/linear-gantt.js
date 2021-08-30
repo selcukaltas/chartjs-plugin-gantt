@@ -3,7 +3,7 @@
 import {ScaleUtils} from "./scale-utils";
 import {LinearScale} from "chart.js";
 
-class LinearGanttScaleZ extends LinearScale {
+export class LinearGanttScale extends LinearScale {
     static get id() { return 'linear-gantt'; }
 
     getRightValue(rawValue) {
@@ -16,18 +16,12 @@ class LinearGanttScaleZ extends LinearScale {
     }
 
     getLabelForValue(value) {
-        console.log("val", value);
-
         return value;
     }
 }
 
-LinearGanttScaleZ.defaults = {
+LinearGanttScale.defaults = {
     ticks: {
         callback: value => value
     }
 };
-
-export function LinearGanttScale(Chart) {
-    Chart.register(LinearGanttScaleZ);
-}

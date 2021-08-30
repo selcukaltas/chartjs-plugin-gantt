@@ -12,7 +12,7 @@ defaults.elements.gantt = {
     backgroundColor: defaults.defaultColor,
 };
 
-class GanttControllerZ extends Chart.DatasetController {
+export class GanttController extends Chart.DatasetController {
     static get id() { return "gantt"; }
 
     _prepareData(data, dataset) {
@@ -91,14 +91,14 @@ class GanttControllerZ extends Chart.DatasetController {
     }
 }
 
-GanttControllerZ.defaults = {
+GanttController.defaults = {
     dataElementType: "rect",
 //    datasetElementType: "rect",
     height: 5,
     width: 5
 };
 
-Chart.defaults.gantt = GanttControllerZ.overrides = {
+Chart.defaults.gantt = GanttController.overrides = {
     scales: {
         _index_: {
             id: 'x',
@@ -113,8 +113,4 @@ Chart.defaults.gantt = GanttControllerZ.overrides = {
             position: 'left'
         }
     }
-}
-
-export function GanttController(Chart) {
-    Chart.register(GanttControllerZ);
 }

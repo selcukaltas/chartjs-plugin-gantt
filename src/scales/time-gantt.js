@@ -3,7 +3,7 @@
 import {ScaleUtils} from "./scale-utils";
 import {TimeScale} from "chart.js";
 
-class TimeGanttScaleZ extends TimeScale {
+export class TimeGanttScale extends TimeScale {
     static get isTime() { return true; }
     static get id() { return 'time-gantt'; }
 
@@ -17,12 +17,6 @@ class TimeGanttScaleZ extends TimeScale {
     }
 
     getLabelForValue(value) {
-        console.log("val", value);
-
         return value;
     }
-}
-
-export function TimeGanttScale(Chart) {
-    Chart.register(TimeGanttScaleZ);
 }

@@ -50,14 +50,6 @@ export const ScaleUtils = {
                 });
             }
         });
-    },
-
-    getLabelForIndex: function (scale, index, datasetIndex) {
-        const data = scale.chart.data.datasets[datasetIndex].data[index];
-        const val = (scale.isHorizontal()) ? data.x : data.y;
-        if (Utils.isRange(val))
-            return val.from + "~" + val.to
-        return val;
     }
 };
 
