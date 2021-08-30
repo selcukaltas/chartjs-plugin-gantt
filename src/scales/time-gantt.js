@@ -13,7 +13,7 @@ export class TimeGanttScale extends TimeScale {
 
     determineDataLimits() {
         this.__proto__.__proto__.determineDataLimits.call(this);
-        ScaleUtils.determineDataLimits(this);
+        //ScaleUtils.determineDataLimits(this);
     }
 
     getLabelForValue(value) {

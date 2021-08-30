@@ -40,16 +40,25 @@
                                 pinch: {
                                     enabled: true
                                 },
-                                mode: 'xy',
+                                mode: 'x',
                             },
                             pan: {
                                 enabled: true,
-                                mode: 'xy',
+                                mode: 'x',
+                            },
+                            limits: {
+                                x: {
+                                    min: new Date().getTime() - + 1000 * 3600 * 24 * 30,
+                                    max: new Date(Date.now() + 1000 * 3600 * 24 * 30 * 2).getTime(),
+                                    minRange: 10
+                                }
                             }
                         }
                     }
                 }
             });
+
+            chart.zoomScale('x', {min: new Date().getTime(), max: new Date(Date.now() + 1000 * 3600 * 24 * 30 * 2).getTime()}, 'default');
         </script>
     </body>
 </html>
